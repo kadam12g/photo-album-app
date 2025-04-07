@@ -58,11 +58,8 @@ jobs:
           echo "Routing table:"
           ip route
           
-          echo "Testing connection to WireGuard server:"
-          sudo curl -vvv 10.200.200.1:8080 || echo "Curl failed"
-          
           echo "Checking UDP connectivity:"
-          nc -vzu $(echo "${{ secrets.WIREGUARD_SERVER_ENDPOINT }}" | cut -d: -f1) $(echo "${{ secrets.WIREGUARD_SERVER_ENDPOINT }}" | cut -d: -f2) || echo "UDP connectivity test failed"
+          echo "Testing UDP connectivity" | socat - UDP:152.66.245.136:8443
           
 
   build-and-deploy:
