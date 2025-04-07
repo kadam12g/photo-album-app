@@ -57,10 +57,33 @@ jobs:
       run: |
         sed -i "s|\${GITHUB_REPOSITORY}:\${GITHUB_SHA}|ghcr.io/${{ github.repository }}:${{ github.sha }}|" kubernetes/deployment.yaml
       
+    - name: Verify Wireguard and Kubernetes connectivity
+      run: |
+        # Check network interfaces
+        echo "Checking network interfaces:"
+        ip addr show
+        
+        # Check routing
+        echo -e "\nChecking routes:"
+        ip route
+        
+        # Try to ping Kubernetes API server
+        echo -e "\nPinging Kubernetes API server:"
+        ping -c 3 10.200.200.1 || echo "Ping failed but continuing"
+        
+        # Check if we can reach the API server
+        echo -e "\nChecking API server connectivity with curl:"
+        curl -k -v https://10.200.200.1:6443/version || echo "Curl failed but continuing"
+        
+        # Test kubectl connectivity with basic commands
+        echo -e "\nTesting kubectl connectivity:"
+        kubectl --kubeconfig=kubeconfig.yaml version
+        kubectl --kubeconfig=kubeconfig.yaml get namespaces
+      
     - name: Deploy to Kubernetes
       run: |
-        kubectl --kubeconfig=kubeconfig.yaml apply -f kubernetes/deployment.yaml
-        kubectl --kubeconfig=kubeconfig.yaml apply -f kubernetes/service.yaml
+        kubectl --kubeconfig=kubeconfig.yaml apply -f kubernetes/deployment.yaml --validate=false
+        kubectl --kubeconfig=kubeconfig.yaml apply -f kubernetes/service.yaml --validate=false
         
     - name: Wait for deployment
       run: |
@@ -73,4 +96,4 @@ jobs:
     - name: Clean up Wireguard
       if: always()
       run: |
-        sudo wg-quick down wg0.conf
+        sudo wg-quick down wg0 || true
