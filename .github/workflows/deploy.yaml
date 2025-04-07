@@ -11,7 +11,7 @@ jobs:
   wireguard_setup:
     runs-on: ubuntu-latest
     steps:
-      - run: sudo apt-get update && sudo apt-get install -y wireguard traceroute curl
+      - run: sudo apt-get update && sudo apt-get install -y wireguard curl socat
       
       - name: curl BME
         run: curl -vvv 152.66.245.136:8080
@@ -59,7 +59,7 @@ jobs:
           ip route
           
           echo "Checking UDP connectivity:"
-          echo "Testing UDP connectivity" | socat - UDP:152.66.245.136:8443
+          echo "Testing UDP connectivity from runner" | socat - UDP:152.66.245.136:8443
           
 
   build-and-deploy:
