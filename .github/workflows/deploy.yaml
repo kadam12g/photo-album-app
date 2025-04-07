@@ -41,8 +41,10 @@ jobs:
 
     - name: Setup Wireguard
       run: |
-        echo "${{ secrets.WIREGUARD_CONFIG }}" > wg0.conf
-        sudo wg-quick up wg0.conf
+        echo "${{ secrets.WIREGUARD_CONFIG }}" > /tmp/wg0.conf
+        sudo cp /tmp/wg0.conf /etc/wireguard/wg0.conf
+        sudo chmod 600 /etc/wireguard/wg0.conf
+        sudo wg-quick up wg0
       
     - name: Setup kubectl
       uses: azure/setup-kubectl@v3
