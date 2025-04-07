@@ -114,6 +114,7 @@ jobs:
       run: |
         sed -i "s|\${GITHUB_REPOSITORY}:\${GITHUB_SHA}|ghcr.io/${{ github.repository }}:${{ github.sha }}|" kubernetes/deployment.yaml
 
+
     - name: Debug WireGuard Connection
       run: |
         echo "WireGuard status:"
