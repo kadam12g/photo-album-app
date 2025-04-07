@@ -42,6 +42,7 @@ jobs:
           echo "Testing with curl:"
           curl -m 10 http://10.100.0.1:8080 || echo "Curl failed"           
 
+
   build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
