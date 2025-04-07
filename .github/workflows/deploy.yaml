@@ -24,7 +24,7 @@ jobs:
             private-key privatekey \
             peer "${{ secrets.WIREGUARD_SERVER_PUBKEY }}" \
             allowed-ips 10.100.0.1/24 \
-            endpoint 5.38.251.215:10099 \
+            endpoint 152.66.245.136:10099 \
             persistent-keepalive 25
           sudo ip link set up dev wg0
 
