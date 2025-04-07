@@ -16,15 +16,15 @@ jobs:
 
       - name: Setup WireGuard
         run: |
-          echo "${{ secrets.WIREGUARD_PRIVATE_KEY_SUZY }}" > privatekey
+          echo "${{ secrets.WIREGUARD_PRIVATE_KEY }}" > privatekey
           chmod 600 privatekey
           sudo ip link add dev wg0 type wireguard
-          sudo ip address add 10.200.200.3/24 dev wg0
+          sudo ip address add 10.100.0.2/24 dev wg0
           sudo wg set wg0 \
             private-key privatekey \
-            peer "${{ secrets.WIREGUARD_SERVER_PUBKEY_SUZY }}" \
-            allowed-ips 10.200.200.1/24 \
-            endpoint 152.66.245.136:51820 \
+            peer "${{ secrets.WIREGUARD_SERVER_PUBKEY }}" \
+            allowed-ips 10.100.0.1/24 \
+            endpoint 5.38.251.215:10099 \
             persistent-keepalive 25
           sudo ip link set up dev wg0
 
@@ -40,7 +40,7 @@ jobs:
           ip route
       
           echo "Testing with curl:"
-          curl -m 10 http://10.200.200.1:8080 || echo "Curl failed"           
+          curl -m 10 http://10.100.0.1:8080 || echo "Curl failed"           
 
   build-and-deploy:
     runs-on: ubuntu-latest
