@@ -56,7 +56,27 @@ jobs:
     - name: Update deployment image
       run: |
         sed -i "s|\${GITHUB_REPOSITORY}:\${GITHUB_SHA}|ghcr.io/${{ github.repository }}:${{ github.sha }}|" kubernetes/deployment.yaml
-      
+
+    - name: Debug WireGuard Connection
+      run: |
+        echo "WireGuard status:"
+        sudo wg show
+        
+        echo "Network interfaces:"
+        ip -a
+        
+        echo "Routing table:"
+        ip route
+        
+        echo "Testing connection to WireGuard server:"
+        sudo ping -c 4 10.200.200.1 || echo "Ping failed"
+        
+        echo "Checking UDP connectivity:"
+        sudo nc -vzu YOUR_SERVER_PUBLIC_IP 51820
+        
+        echo "WireGuard logs:"
+        sudo journalctl -xeu wg-quick@wg0.service      
+
     - name: Verify Wireguard and Kubernetes connectivity
       run: |
         # Check network interfaces
