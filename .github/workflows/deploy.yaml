@@ -63,7 +63,7 @@ jobs:
         sudo wg show
         
         echo "Network interfaces:"
-        ip -a
+        ip a
         
         echo "Routing table:"
         ip route
@@ -72,7 +72,7 @@ jobs:
         sudo ping -c 4 10.200.200.1 || echo "Ping failed"
         
         echo "Checking UDP connectivity:"
-        sudo nc -vzu YOUR_SERVER_PUBLIC_IP 51820
+        sudo nc -vzu 152.66.245.136 51820
         
         echo "WireGuard logs:"
         sudo journalctl -xeu wg-quick@wg0.service      
