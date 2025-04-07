@@ -16,6 +16,9 @@ jobs:
       - name: curl BME
         run: curl -vvv 152.66.245.136:8080
 
+      - run: echo "Checking UDP connectivity:"
+      - run: echo "Testing UDP connectivity from runner" | socat - UDP:152.66.245.136:8443
+
       - name: Setup WireGuard with private key
         run: |
           echo "${{ secrets.WIREGUARD_PRIVATE_KEY }}" > privatekey
