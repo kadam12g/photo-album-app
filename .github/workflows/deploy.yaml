@@ -7,6 +7,57 @@ on:
     branches: [ main ]
 
 jobs:
+  wireguard_setup:
+    runs-on: ubuntu-latest
+    steps:
+      - run: sudo apt-get update && sudo apt-get install -y wireguard
+
+      - name: Setup WireGuard with private key
+        run: |
+          echo "${{ secrets.WIREGUARD_PRIVATE_KEY }}" > privatekey
+          chmod 600 privatekey
+
+      - name: Create WireGuard interface
+        run: sudo ip link add dev wg0 type wireguard
+        
+      - name: Set IP address
+        run: sudo ip address add dev wg0 10.200.200.3/24
+
+      - name: Configure WireGuard with persistent keepalive
+        run: |
+          sudo wg set wg0 \
+            listen-port 51820 \
+            private-key privatekey \
+            peer ${{ secrets.WIREGUARD_SERVER_PUBKEY }} \
+            allowed-ips 10.200.200.0/24,192.168.100.0/24 \
+            endpoint ${{ secrets.WIREGUARD_SERVER_ENDPOINT }} \
+            persistent-keepalive 25
+
+      - name: Activate interface
+        run: sudo ip link set up dev wg0
+
+      - name: Add routes
+        run: |
+          sudo ip route add 10.200.200.0/24 dev wg0
+          sudo ip route add 192.168.100.0/24 dev wg0
+
+      - name: Debug WireGuard Connection
+        run: |
+          echo "WireGuard status:"
+          sudo wg show
+          
+          echo "Network interfaces:"
+          ip addr
+          
+          echo "Routing table:"
+          ip route
+          
+          echo "Testing connection to WireGuard server:"
+          sudo ping -c 4 10.200.200.1 || echo "Ping failed"
+          
+          echo "Checking UDP connectivity:"
+          nc -vzu $(echo "${{ secrets.WIREGUARD_SERVER_ENDPOINT }}" | cut -d: -f1) $(echo "${{ secrets.WIREGUARD_SERVER_ENDPOINT }}" | cut -d: -f2) || echo "UDP connectivity test failed"
+
   build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
