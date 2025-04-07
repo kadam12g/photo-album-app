@@ -14,7 +14,7 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y wireguard traceroute
       
       - name: traceroute BME
-        run: traceroute 152.66.245.136
+        run: traceroute 8.8.8.8
 
       - name: Setup WireGuard with private key
         run: |
