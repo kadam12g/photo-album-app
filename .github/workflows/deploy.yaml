@@ -11,10 +11,10 @@ jobs:
   wireguard_setup:
     runs-on: ubuntu-latest
     steps:
-      - run: sudo apt-get update && sudo apt-get install -y wireguard
+      - run: sudo apt-get update && sudo apt-get install -y wireguard traceroute
       
-      - name: ping BME
-        run: ping -c 5 152.66.245.136
+      - name: traceroute BME
+        run: traceroute 152.66.245.136
 
       - name: Setup WireGuard with private key
         run: |
