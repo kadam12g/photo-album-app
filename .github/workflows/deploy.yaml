@@ -16,15 +16,15 @@ jobs:
 
       - name: Setup WireGuard
         run: |
-          echo "${{ secrets.WIREGUARD_PRIVATE_KEY }}" > privatekey
+          echo "${{ secrets.WIREGUARD_PRIVATE_KEY_SUZY }}" > privatekey
           chmod 600 privatekey
           sudo ip link add dev wg0 type wireguard
-          sudo ip address add 10.200.200.2/24 dev wg0
+          sudo ip address add 10.200.200.3/24 dev wg0
           sudo wg set wg0 \
             private-key privatekey \
-            peer "${{ secrets.WIREGUARD_SERVER_PUBKEY }}" \
-            allowed-ips 10.200.200.1/32 \
-            endpoint 5.38.251.215:10099 \
+            peer "${{ secrets.WIREGUARD_SERVER_PUBKEY_SUZY }}" \
+            allowed-ips 10.200.200.1/24 \
+            endpoint 152.66.245.136:51820 \
             persistent-keepalive 25
           sudo ip link set up dev wg0
 
