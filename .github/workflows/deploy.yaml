@@ -11,12 +11,12 @@ jobs:
   wireguard_setup:
     runs-on: ubuntu-latest
     steps:
-      - run: sudo apt-get update && sudo apt-get install -y wireguard curl socat
+      - run: sudo apt-get update && sudo apt-get install -y wireguard curl socat stun-client
       
       - name: curl BME
         run: curl -vvv 152.66.245.136:8080
 
-      - run: echo "Checking UDP connectivity:"
+      - run: stun stun.sipgate.net
       - run: echo "Testing UDP connectivity from runner" | socat - UDP:152.66.245.136:8443
 
       - name: Setup WireGuard with private key
