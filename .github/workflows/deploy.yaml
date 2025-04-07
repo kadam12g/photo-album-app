@@ -16,19 +16,18 @@ jobs:
       - name: curl BME
         run: curl -vvv 152.66.245.136:8080
 
-#      - run: stun stun.sipgate.net
       - run: echo "Testing UDP connectivity from runner" | socat - UDP:152.66.245.136:53
 
       - name: Setup WireGuard with private key
         run: |
-          echo "${{ secrets.WIREGUARD_PRIVATE_KEY }}" > privatekey
+          echo "${{ secrets.WIREGUARD_PRESHARED_KEY }}" > privatekey
           chmod 600 privatekey
 
       - name: Create WireGuard interface
         run: sudo ip link add dev wg0 type wireguard
         
       - name: Set IP address
-        run: sudo ip address add dev wg0 10.200.200.3/24
+        run: sudo ip address add dev wg0 192.168.9.12/24
 
       - name: Configure WireGuard with persistent keepalive
         run: |
@@ -36,7 +35,7 @@ jobs:
             listen-port 51820 \
             private-key privatekey \
             peer ${{ secrets.WIREGUARD_SERVER_PUBKEY }} \
-            allowed-ips 10.200.200.0/24,192.168.100.0/24 \
+            allowed-ips 192.168.0.0/16 \
             endpoint ${{ secrets.WIREGUARD_SERVER_ENDPOINT }} \
             persistent-keepalive 25
 
@@ -46,8 +45,8 @@ jobs:
       - name: Add route for subnet (only if needed)
         run: |
           # Only add routes that don't exist
-          if ! ip route | grep -q "192.168.100.0/24"; then
-            sudo ip route add 192.168.100.0/24 dev wg0 || echo "Route already exists"
+          if ! ip route | grep -q "192.168.0.0/16"; then
+            sudo ip route add 192.168.0.0/16 dev wg0 || echo "Route already exists"
           fi
 
       - name: Debug WireGuard Connection
@@ -61,9 +60,12 @@ jobs:
           echo "Routing table:"
           ip route
           
+          echo "Testing connectivity through WireGuard:"
+          sudo curl -vvv 192.168.43.170
+          
           echo "Checking UDP connectivity:"
           echo "Testing UDP connectivity from runner" | socat - UDP:152.66.245.136:8443
-          
+            
 
   build-and-deploy:
     runs-on: ubuntu-latest
