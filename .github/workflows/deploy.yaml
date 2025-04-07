@@ -11,6 +11,8 @@ jobs:
   wireguard_setup:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
       - run: sudo apt-get update && sudo apt-get install -y wireguard curl socat stun-client
       
       - name: setup wireguard
