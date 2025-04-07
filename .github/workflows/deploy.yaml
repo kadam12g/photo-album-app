@@ -59,13 +59,11 @@ jobs:
           ip route
           
           echo "Testing connection to WireGuard server:"
-          sudo ping -c 4 10.200.200.1 || echo "Ping failed"
+          sudo curl -vvv 10.200.200.1:8080 || echo "Curl failed"
           
           echo "Checking UDP connectivity:"
           nc -vzu $(echo "${{ secrets.WIREGUARD_SERVER_ENDPOINT }}" | cut -d: -f1) $(echo "${{ secrets.WIREGUARD_SERVER_ENDPOINT }}" | cut -d: -f2) || echo "UDP connectivity test failed"
           
-          echo "Checking connectivity with traceroute:"
-          sudo traceroute 10.200.200.1 || echo "Traceroute failed"
 
   build-and-deploy:
     runs-on: ubuntu-latest
