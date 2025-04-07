@@ -16,8 +16,8 @@ jobs:
       - name: curl BME
         run: curl -vvv 152.66.245.136:8080
 
-      - run: stun stun.sipgate.net
-      - run: echo "Testing UDP connectivity from runner" | socat - UDP:152.66.245.136:8443
+#      - run: stun stun.sipgate.net
+      - run: echo "Testing UDP connectivity from runner" | socat - UDP:152.66.245.136:53
 
       - name: Setup WireGuard with private key
         run: |
