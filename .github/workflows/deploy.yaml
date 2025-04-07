@@ -36,10 +36,12 @@ jobs:
       - name: Activate interface
         run: sudo ip link set up dev wg0
 
-      - name: Add routes
+      - name: Add route for subnet (only if needed)
         run: |
-          sudo ip route add 10.200.200.0/24 dev wg0
-          sudo ip route add 192.168.100.0/24 dev wg0
+          # Only add routes that don't exist
+          if ! ip route | grep -q "192.168.100.0/24"; then
+            sudo ip route add 192.168.100.0/24 dev wg0 || echo "Route already exists"
+          fi
 
       - name: Debug WireGuard Connection
         run: |
@@ -57,6 +59,9 @@ jobs:
           
           echo "Checking UDP connectivity:"
           nc -vzu $(echo "${{ secrets.WIREGUARD_SERVER_ENDPOINT }}" | cut -d: -f1) $(echo "${{ secrets.WIREGUARD_SERVER_ENDPOINT }}" | cut -d: -f2) || echo "UDP connectivity test failed"
+          
+          echo "Checking connectivity with traceroute:"
+          sudo traceroute 10.200.200.1 || echo "Traceroute failed"
 
   build-and-deploy:
     runs-on: ubuntu-latest
