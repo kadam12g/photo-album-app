@@ -95,7 +95,7 @@ jobs:
         # Test kubectl connectivity with basic commands
         echo -e "\nTesting kubectl connectivity:"
         kubectl --kubeconfig=kubeconfig.yaml version
-        kubectl --kubeconfig=kubeconfig.yaml get namespaces
+        kubectl --kubeconfig=kubeconfig.yaml get pods
       
     - name: Deploy to Kubernetes
       run: |
