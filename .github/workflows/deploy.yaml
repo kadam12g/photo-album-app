@@ -8,40 +8,30 @@ on:
     branches: [ main ]
 
 jobs:
-  wireguard_test:
+  tailscale_test:
     runs-on: ubuntu-latest
     steps:
-      - name: Install WireGuard
-        run: sudo apt-get update && sudo apt-get install -y wireguard
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
 
-      - name: Setup WireGuard
+      - name: Debug Tailscale
         run: |
-          echo "${{ secrets.WIREGUARD_PRIVATE_KEY }}" > privatekey
-          chmod 600 privatekey
-          sudo ip link add dev wg0 type wireguard
-          sudo ip address add 10.100.0.2/24 dev wg0
-          sudo wg set wg0 \
-            private-key privatekey \
-            peer "${{ secrets.WIREGUARD_SERVER_PUBKEY }}" \
-            allowed-ips 10.100.0.1/24 \
-            endpoint 152.66.245.136:10099 \
-            persistent-keepalive 25
-          sudo ip link set up dev wg0
-
-      - name: Debug WireGuard
-        run: |
-          echo "WireGuard status:"
-          sudo wg show
+          echo "Tailscale status:"
+          tailscale status
           
           echo "Network interfaces:"
           ip addr
           
           echo "Routing table:"
           ip route
-      
+          
           echo "Testing with curl:"
-          curl -m 10 http://10.100.0.1:8080 || echo "Curl failed"           
-
+          # Replace "server-hostname" with your actual Tailscale hostname
+          curl -m 10 http://${{ secrets.SERVER_HOSTNAME }}:8080 || echo "Curl failed"
 
   build-and-deploy:
     runs-on: ubuntu-latest
