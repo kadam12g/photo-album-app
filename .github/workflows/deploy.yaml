@@ -34,7 +34,6 @@ jobs:
           curl -m 10 http://${{ secrets.SERVER_HOSTNAME }}:8080 || echo "Curl failed"
 
   build-and-deploy:
-
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -61,18 +60,13 @@ jobs:
         push: true
         tags: ghcr.io/${{ github.repository }}:${{ github.sha }}
         
-    - name: Install Wireguard
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y wireguard
+    - name: Connect to Tailscale
+      uses: tailscale/github-action@v3
+      with:
+        oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+        oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+        tags: tag:ci
 
-    - name: Setup Wireguard
-      run: |
-        echo "${{ secrets.WIREGUARD_CONFIG }}" > /tmp/wg0.conf
-        sudo cp /tmp/wg0.conf /etc/wireguard/wg0.conf
-        sudo chmod 600 /etc/wireguard/wg0.conf
-        sudo wg-quick up wg0
-      
     - name: Setup kubectl
       uses: azure/setup-kubectl@v3
       
@@ -84,28 +78,7 @@ jobs:
       run: |
         sed -i "s|\${GITHUB_REPOSITORY}:\${GITHUB_SHA}|ghcr.io/${{ github.repository }}:${{ github.sha }}|" kubernetes/deployment.yaml
 
-
-    - name: Debug WireGuard Connection
-      run: |
-        echo "WireGuard status:"
-        sudo wg show
-        
-        echo "Network interfaces:"
-        ip a
-        
-        echo "Routing table:"
-        ip route
-        
-        echo "Testing connection to WireGuard server:"
-        sudo ping -c 4 10.200.200.1 || echo "Ping failed"
-        
-        echo "Checking UDP connectivity:"
-        sudo nc -vzu 152.66.245.136 51820
-        
-        echo "WireGuard logs:"
-        sudo journalctl -xeu wg-quick@wg0.service      
-
-    - name: Verify Wireguard and Kubernetes connectivity
+    - name: Verify Tailscale and Kubernetes connectivity
       run: |
         # Check network interfaces
         echo "Checking network interfaces:"
@@ -115,13 +88,9 @@ jobs:
         echo -e "\nChecking routes:"
         ip route
         
-        # Try to ping Kubernetes API server
-        echo -e "\nPinging Kubernetes API server:"
-        ping -c 3 10.200.200.1 || echo "Ping failed but continuing"
-        
         # Check if we can reach the API server
         echo -e "\nChecking API server connectivity with curl:"
-        curl -k -v https://10.200.200.1:6443/version || echo "Curl failed but continuing"
+        curl -k -v https://${{ secrets.SERVER_HOSTNAME }}:6443/version || echo "Curl failed but continuing"
         
         # Test kubectl connectivity with basic commands
         echo -e "\nTesting kubectl connectivity:"
@@ -141,7 +110,3 @@ jobs:
       run: |
         kubectl --kubeconfig=kubeconfig.yaml get svc photo-album-app -o wide
         
-    - name: Clean up Wireguard
-      if: always()
-      run: |
-        sudo wg-quick down wg0 || true
