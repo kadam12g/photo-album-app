@@ -34,6 +34,7 @@ jobs:
           curl -m 10 http://${{ secrets.SERVER_HOSTNAME }}:8080 || echo "Curl failed"
 
   build-and-deploy:
+
     runs-on: ubuntu-latest
     permissions:
       contents: read
