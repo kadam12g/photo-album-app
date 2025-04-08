@@ -110,3 +110,4 @@ jobs:
       run: |
         kubectl --kubeconfig=kubeconfig.yaml get svc photo-album-app -o wide
         
+
