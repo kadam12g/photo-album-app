@@ -33,6 +33,7 @@ jobs:
           # Replace "server-hostname" with your actual Tailscale hostname
           curl -m 10 http://${{ secrets.SERVER_HOSTNAME }}:8080 || echo "Curl failed"
 
+
   build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
