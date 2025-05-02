@@ -21,7 +21,7 @@ spec:
     spec:
       initContainers:
       - name: volume-permissions
-        image: ghcr.io/kadam12g/photo-album-app/photo-album-app:94c49dbedfa00b44351c149e91a3f012b09d30bf
+        image: ghcr.io/kadam12g/photo-album-app/photo-album-app:e0423abe0ce76ee42ad6751855af56f5a14c3e5c
         command: ["sh", "-c", "chown -R 1000:1000 /app/uploads && chmod -R 775 /app/uploads"]
         volumeMounts:
         - name: uploads
@@ -30,7 +30,7 @@ spec:
           runAsUser: 0  # Run as root for permission changes
       containers:
       - name: photo-album
-        image: ghcr.io/kadam12g/photo-album-app/photo-album-app:94c49dbedfa00b44351c149e91a3f012b09d30bf
+        image: ghcr.io/kadam12g/photo-album-app/photo-album-app:e0423abe0ce76ee42ad6751855af56f5a14c3e5c
         ports:
         - containerPort: 5000
         env:
