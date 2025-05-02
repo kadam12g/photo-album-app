@@ -3,7 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: uploads-pvc
 spec:
-  storageClassName: openebs-zfspv
+  storageClassName: local-path
   accessModes:
     - ReadWriteOnce
   resources:
