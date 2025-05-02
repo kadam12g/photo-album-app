@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: photo-album-ingress
+  annotations:
+    traefik.ingress.kubernetes.io/maximum-body-size: "16m"
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - photo-album.kissadam.info
+    secretName: photo-album-tls
+  rules:
+  - host: photo-album.kissadam.info
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: photo-album-service
+            port:
+              number: 80

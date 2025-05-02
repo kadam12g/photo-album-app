@@ -1,0 +1,24 @@
+# Documentation
+*.odt
+*.pdf
+*.png
+
+# Editor files
+.~lock*
+*swp
+
+# Development environment
+venv
+.env
+
+# Testing data
+app/static/uploads/*
+app/images.db
+
+# Python modules
+*.pyc
+app/__pycache__
+
+# Secrets
+k8s/secret.yaml
+k8s/postgres-secret.yaml

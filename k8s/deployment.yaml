@@ -1,0 +1,112 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: photo-album-app
+  labels:
+    app: photo-album
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: photo-album
+  template:
+    metadata:
+      labels:
+        app: photo-album
+    spec:
+      initContainers:
+      - name: volume-permissions
+        image: ghcr.io/kadam12g/photo-album-app/photo-album-app:20290e1f39eb20da630d30cec26863f89b867714
+        command: ["sh", "-c", "chown -R 1000:1000 /app/uploads && chmod -R 775 /app/uploads"]
+        volumeMounts:
+        - name: uploads
+          mountPath: /app/uploads
+        securityContext:
+          runAsUser: 0  # Run as root for permission changes
+      containers:
+      - name: photo-album
+        image: ghcr.io/kadam12g/photo-album-app/photo-album-app:20290e1f39eb20da630d30cec26863f89b867714
+        ports:
+        - containerPort: 5000
+        env:
+        - name: FLASK_APP
+          valueFrom:
+            configMapKeyRef:
+              name: photo-album-config
+              key: FLASK_APP
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: photo-album-secrets
+              key: secret-key
+        # PostgreSQL environment variables
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secrets
+              key: postgres-user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secrets
+              key: postgres-password
+        - name: POSTGRES_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: photo-album-config
+              key: POSTGRES_HOST
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: photo-album-config
+              key: POSTGRES_DB
+        - name: UPLOAD_FOLDER
+          value: "/app/app/static/uploads"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 2
+          successThreshold: 1
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 12
+        volumeMounts:
+        - name: uploads
+          mountPath: /app/app/static/uploads
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "500Mi"
+          requests:
+            cpu: "200m"
+            memory: "200Mi"
+        securityContext:
+          runAsUser: 1000
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+      volumes:
+      - name: uploads
+        persistentVolumeClaim:
+          claimName: uploads-pvc

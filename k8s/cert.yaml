@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: photo-album-cert
+  namespace: photo-album
+spec:
+  secretName: photo-album-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - photo-album.kissadam.info
+  duration: 2160h0m0s # 90 days
+  renewBefore: 360h0m0s # 15 days before expiry

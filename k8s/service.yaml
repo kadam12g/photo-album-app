@@ -4,8 +4,8 @@ metadata:
   name: photo-album-app
 spec:
   selector:
-    app: photo-album-app
+    app: photo-album
   ports:
   - port: 80
-    targetPort: 8080
+    targetPort: 5000
   type: ClusterIP
