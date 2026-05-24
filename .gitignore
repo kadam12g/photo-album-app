@@ -2,6 +2,9 @@
 *.odt
 *.pdf
 *.png
+*.pptx
+*.zip
+repo-link.txt
 
 # Editor files
 .~lock*
